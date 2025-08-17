@@ -7,11 +7,12 @@ import { Wallet, ChartBar as BarChart3, History, User } from 'lucide-react-nativ
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 =======
 import { Wallet, ChartBar as BarChart3, History, User, Shield } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 >>>>>>> af76f43d6c68b62a92b2f41c474638834710f170
 
 export default function TabLayout() {
   const { user, userProfile, loading } = useAuth();
-  const insets = useSafeAreaInsets ? useSafeAreaInsets() : { bottom: 0 };
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -40,9 +41,9 @@ export default function TabLayout() {
           paddingBottom: 8 + (insets.bottom || 0),
           paddingTop: 4,
 =======
-          height: 80,
-          paddingBottom: 20,
-          paddingTop: 8,
+          height: 60 + (insets.bottom || 0),
+          paddingBottom: 8 + (insets.bottom || 0),
+          paddingTop: 4,
 >>>>>>> af76f43d6c68b62a92b2f41c474638834710f170
         },
         tabBarActiveTintColor: '#3B82F6',

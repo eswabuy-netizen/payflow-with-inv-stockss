@@ -89,11 +89,9 @@ Generated on: ${new Date().toLocaleDateString()}`;
       title: 'Help & Support',
       subtitle: 'Get help with your account',
       onPress: () => Alert.alert('Support', 'For support, please contact: support@payflow.sz'),
-    },
+            {userProfile.role === 'merchant' ? 'Business' : 'Personal'}
   ];
-
-  return (
-    <View style={styles.container}>
+          {/* Remove businessName */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Profile</Text>
         <TouchableOpacity style={styles.settingsButton}>
@@ -149,7 +147,7 @@ Generated on: ${new Date().toLocaleDateString()}`;
               <Text style={styles.walletStatLabel}>Account Type</Text>
             </View>
           </View>
-        </View>
+              Personal
 
         <View style={styles.settingsSection}>
           <Text style={styles.sectionTitle}>Preferences</Text>
@@ -216,7 +214,7 @@ Generated on: ${new Date().toLocaleDateString()}`;
 =======
           <Text style={styles.footerSubtext}>Secure digital wallet for businesses</Text>
 >>>>>>> af76f43d6c68b62a92b2f41c474638834710f170
-          <Text style={styles.footerSubtext}>Built with Firebase & React Native</Text>
+        <Text style={styles.footerSubtext}>Secure digital wallet for clients</Text>
         </View>
       </ScrollView>
     </View>

@@ -56,4 +56,4 @@ export class MtnMomoService {
       setTimeout(() => resolve('success'), 1000);
     });
   }
-} 
+}

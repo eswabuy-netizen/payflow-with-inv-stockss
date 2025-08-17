@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, useWindowDimensions, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, useWindowDimensions, ScrollView, RefreshControl } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
+import { PaymentService } from '@/services/paymentService';
 <<<<<<< HEAD
 =======
 import { PaymentService } from '@/services/paymentService';
@@ -15,9 +16,13 @@ import {
   User as UserIcon,
   TrendingUp,
 <<<<<<< HEAD
+  Plus,
+  Send,
+  Package,
   ArrowUpRight,
   ArrowDownLeft,
-  Package
+  Clock,
+  Users
 =======
   Plus,
   Send,
@@ -33,6 +38,12 @@ export default function DashboardScreen() {
   const { userProfile, logout } = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [stats, setStats] = useState({
+    totalInvoices: 0,
+    totalRevenue: 0,
+    pendingAmount: 0,
+    totalClients: 0,
+  });
 <<<<<<< HEAD
 
   useEffect(() => {
@@ -56,10 +67,29 @@ export default function DashboardScreen() {
     if (!userProfile) return;
 
     // Subscribe to real-time transactions
+    // Subscribe to real-time transactions
     const unsubscribe = RealTimeService.subscribeToUserTransactions(
       userProfile.id,
       (newTransactions) => {
         setTransactions(newTransactions);
+        
+        if (userProfile.role === 'merchant') {
+          // Calculate merchant stats
+          const receivedTransactions = newTransactions.filter(
+            t => t.receiverId === userProfile.id && t.status === 'completed'
+          );
+          const totalRevenue = receivedTransactions.reduce((sum, t) => sum + t.amount, 0);
+          const invoiceTransactions = receivedTransactions.filter(t => t.type === 'invoice');
+          const productTransactions = receivedTransactions.filter(t => t.type === 'product');
+          const uniqueClients = new Set(receivedTransactions.map(t => t.payerId)).size;
+
+          setStats({
+            totalInvoices: invoiceTransactions.length,
+            totalRevenue,
+            pendingAmount: 0, // For demo purposes
+            totalClients: uniqueClients,
+          });
+        }
         
         if (userProfile.role === 'merchant') {
           // Calculate merchant stats
@@ -87,6 +117,7 @@ export default function DashboardScreen() {
 
   const onRefresh = async () => {
     setRefreshing(true);
+    // The real-time listener will automatically update the data
 <<<<<<< HEAD
 =======
     // The real-time listener will automatically update the data
@@ -120,6 +151,134 @@ export default function DashboardScreen() {
     return transaction.payerId === userProfile.id ? '#EF4444' : '#10B981';
   };
 
+  const handleProfilePress = () => router.push('/(tabs)/profile');
+  const handleNotificationsPress = () => router.push('/(tabs)/profile'); // Could scroll to notifications
+  const handleThemePress = () => router.push('/(tabs)/profile'); // Could scroll to theme
+  const handleWalletPress = (modal?: string) => router.push({ pathname: '/(tabs)/wallet', params: modal ? { modal } : undefined });
+  const handleTransactionsPress = () => router.push('/(tabs)/transactions');
+
+  const renderMerchantDashboard = () => (
+    <ScrollView 
+      style={styles.container} 
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      showsVerticalScrollIndicator={false}
+    >
+      <View style={styles.header}>
+        <View style={styles.headerLeft}>
+          <Text style={styles.headerTitle}>Dashboard</Text>
+        </View>
+        <View style={styles.headerRight}>
+          <TouchableOpacity style={styles.iconButton} onPress={handleNotificationsPress}>
+            <Bell size={20} color="#9CA3AF" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.iconButton} onPress={handleThemePress}>
+            <Sun size={20} color="#9CA3AF" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.profileButton} onPress={handleProfilePress}>
+            <UserIcon size={16} color="#FFFFFF" />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <View style={styles.merchantWelcome}>
+        <Text style={styles.merchantWelcomeText}>Welcome back, {userProfile.firstName}!</Text>
+        <Text style={styles.merchantWelcomeSubtext}>
+          {userProfile.businessName || 'Your Business'} • Merchant Account
+        </Text>
+      </View>
+
+      <View style={styles.statsGrid}>
+        <View style={styles.statCard}>
+          <View style={styles.statContent}>
+            <View style={styles.statText}>
+              <Text style={styles.statLabel}>Total Invoices</Text>
+              <Text style={styles.statValue}>{stats.totalInvoices}</Text>
+              <Text style={styles.statChange}>InvoiceFlow integration</Text>
+            </View>
+            <View style={[styles.statIcon, { backgroundColor: '#8B5CF6' }]}>
+              <FileText size={24} color="#FFFFFF" />
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.statCard}>
+          <View style={styles.statContent}>
+            <View style={styles.statText}>
+              <Text style={styles.statLabel}>Total Revenue</Text>
+              <Text style={styles.statValue}>{formatCurrency(stats.totalRevenue)}</Text>
+              <Text style={styles.statChange}>All-time earnings</Text>
+            </View>
+            <View style={[styles.statIcon, { backgroundColor: '#059669' }]}>
+              <DollarSign size={24} color="#FFFFFF" />
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.statCard}>
+          <View style={styles.statContent}>
+            <View style={styles.statText}>
+              <Text style={styles.statLabel}>Wallet Balance</Text>
+              <Text style={styles.statValue}>{formatCurrency(userProfile.walletBalance)}</Text>
+              <Text style={styles.statChange}>Available funds</Text>
+            </View>
+            <View style={[styles.statIcon, { backgroundColor: '#3B82F6' }]}>
+              <Clock size={24} color="#FFFFFF" />
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.statCard}>
+          <View style={styles.statContent}>
+            <View style={styles.statText}>
+              <Text style={styles.statLabel}>Total Clients</Text>
+              <Text style={styles.statValue}>{stats.totalClients}</Text>
+              <Text style={styles.statChange}>Unique customers</Text>
+            </View>
+            <View style={[styles.statIcon, { backgroundColor: '#7C3AED' }]}>
+              <Users size={24} color="#FFFFFF" />
+            </View>
+          </View>
+        </View>
+      </View>
+
+      <View style={styles.recentSection}>
+        <Text style={styles.sectionTitle}>Recent Payments</Text>
+        {transactions.slice(0, 5).map((transaction) => (
+          <View key={transaction.id} style={styles.transactionItem}>
+            <View style={styles.transactionIcon}>
+              {getTransactionIcon(transaction)}
+            </View>
+            <View style={styles.transactionContent}>
+              <Text style={styles.transactionTitle}>{transaction.description}</Text>
+              <Text style={styles.transactionDate}>
+                {transaction.createdAt.toLocaleDateString()} • {transaction.createdAt.toLocaleTimeString()}
+              </Text>
+            </View>
+            <Text style={[
+              styles.transactionAmount,
+              { color: getTransactionColor(transaction) }
+            ]}>
+              {getTransactionAmount(transaction)}
+            </Text>
+          </View>
+        ))}
+        {transactions.length === 0 && (
+          <View style={styles.emptyState}>
+            <FileText size={48} color="#4B5563" />
+            <Text style={styles.emptyTitle}>No transactions yet</Text>
+            <Text style={styles.emptySubtext}>Payments will appear here</Text>
+          </View>
+        )}
+      </View>
+    </ScrollView>
+  );
+
+  const renderClientDashboard = () => (
+    <ScrollView 
+      style={styles.container}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      showsVerticalScrollIndicator={false}
+    >
 <<<<<<< HEAD
   const handleProfilePress = () => router.push('/(tabs)/profile');
   const handleNotificationsPress = () => router.push('/(tabs)/profile'); // Could scroll to notifications
@@ -302,20 +461,26 @@ export default function DashboardScreen() {
 >>>>>>> af76f43d6c68b62a92b2f41c474638834710f170
       <View style={styles.header}>
         <View style={styles.headerLeft}>
+          <View style={styles.menuButton}>
+            <View style={styles.menuLine} />
+            <View style={styles.menuLine} />
+            <View style={styles.menuLine} />
+          </View>
           <Text style={styles.headerTitle}>Dashboard</Text>
         </View>
         <View style={styles.headerRight}>
-          <TouchableOpacity style={styles.iconButton} onPress={handleNotificationsPress}>
+          <TouchableOpacity style={styles.iconButton}>
             <Bell size={20} color="#9CA3AF" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton} onPress={handleThemePress}>
+          <TouchableOpacity style={styles.iconButton}>
             <Sun size={20} color="#9CA3AF" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.profileButton} onPress={handleProfilePress}>
+          <TouchableOpacity style={styles.profileButton} onPress={logout}>
             <UserIcon size={16} color="#FFFFFF" />
           </TouchableOpacity>
         </View>
       </View>
+
 <<<<<<< HEAD
 =======
 
@@ -452,11 +617,19 @@ export default function DashboardScreen() {
       </View>
       <View style={styles.quickActions}>
 <<<<<<< HEAD
-        <TouchableOpacity style={[styles.actionButton, { backgroundColor: '#8B5CF6' }]} onPress={() => handleWalletPress('invoice')}>
+        <TouchableOpacity style={[styles.actionButton, { backgroundColor: '#10B981' }]}>
+          <Plus size={24} color="#FFFFFF" />
+          <Text style={styles.actionButtonText}>Top Up</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.actionButton, { backgroundColor: '#3B82F6' }]}>
+          <Send size={24} color="#FFFFFF" />
+          <Text style={styles.actionButtonText}>Send Money</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.actionButton, { backgroundColor: '#8B5CF6' }]}>
           <FileText size={24} color="#FFFFFF" />
           <Text style={styles.actionButtonText}>Pay Invoice</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.actionButton, { backgroundColor: '#F59E0B' }]} onPress={() => handleWalletPress('product')}>
+        <TouchableOpacity style={[styles.actionButton, { backgroundColor: '#F59E0B' }]}>
 =======
         <TouchableOpacity style={[styles.actionButton, { backgroundColor: '#10B981' }]}>
           <Plus size={24} color="#FFFFFF" />
@@ -479,23 +652,15 @@ export default function DashboardScreen() {
       <View style={styles.recentSection}>
         <Text style={styles.sectionTitle}>Recent Transactions</Text>
 <<<<<<< HEAD
-        <ScrollView style={{ height: RECENT_SECTION_HEIGHT }} contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
-          {transactions.slice(0, 10).map((transaction) => (
-            <TouchableOpacity key={transaction.id} style={styles.transactionItem} onPress={handleTransactionsPress}>
-              <View style={styles.transactionIcon}>
-                {getTransactionIcon(transaction)}
-              </View>
-              <View style={styles.transactionContent}>
-                <Text style={styles.transactionTitle}>{transaction.description}</Text>
-                <Text style={styles.transactionDate}>
-                  {transaction.createdAt.toLocaleDateString()} • {transaction.createdAt.toLocaleTimeString()}
-                </Text>
-              </View>
-              <Text style={[
-                styles.transactionAmount,
-                { color: getTransactionColor(transaction) }
-              ]}>
-                {getTransactionAmount(transaction)}
+        {transactions.slice(0, 8).map((transaction) => (
+          <View key={transaction.id} style={styles.transactionItem}>
+            <View style={styles.transactionIcon}>
+              {getTransactionIcon(transaction)}
+            </View>
+            <View style={styles.transactionContent}>
+              <Text style={styles.transactionTitle}>{transaction.description}</Text>
+              <Text style={styles.transactionDate}>
+                {transaction.createdAt.toLocaleDateString()} • {transaction.createdAt.toLocaleTimeString()}
 =======
         {transactions.slice(0, 8).map((transaction) => (
           <View key={transaction.id} style={styles.transactionItem}>
@@ -509,16 +674,22 @@ export default function DashboardScreen() {
 >>>>>>> af76f43d6c68b62a92b2f41c474638834710f170
               </Text>
             </TouchableOpacity>
-          ))}
-          {transactions.length === 0 && (
-            <View style={styles.emptyState}>
-              <DollarSign size={48} color="#4B5563" />
-              <Text style={styles.emptyTitle}>No transactions yet</Text>
-              <Text style={styles.emptySubtext}>Start by topping up your wallet</Text>
-            </View>
 <<<<<<< HEAD
-          )}
-        </ScrollView>
+            <Text style={[
+              styles.transactionAmount,
+              { color: getTransactionColor(transaction) }
+            ]}>
+              {getTransactionAmount(transaction)}
+            </Text>
+          </View>
+        ))}
+        {transactions.length === 0 && (
+          <View style={styles.emptyState}>
+            <DollarSign size={48} color="#4B5563" />
+            <Text style={styles.emptyTitle}>No transactions yet</Text>
+            <Text style={styles.emptySubtext}>Start by topping up your wallet</Text>
+          </View>
+        )}
 =======
             <Text style={[
               styles.transactionAmount,
@@ -537,8 +708,10 @@ export default function DashboardScreen() {
         )}
 >>>>>>> af76f43d6c68b62a92b2f41c474638834710f170
       </View>
-    </View>
+    </ScrollView>
   );
+
+  return userProfile.role === 'merchant' ? renderMerchantDashboard() : renderClientDashboard();
 <<<<<<< HEAD
 }
 =======
@@ -546,6 +719,62 @@ export default function DashboardScreen() {
   return userProfile.role === 'merchant' ? renderMerchantDashboard() : renderClientDashboard();
 }
 
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#111827',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingTop: 60,
+    paddingBottom: 24,
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  menuButton: {
+    gap: 3,
+  },
+  menuLine: {
+    width: 20,
+    height: 2,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 1,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  iconButton: {
+    padding: 8,
+  },
+  profileButton: {
+    backgroundColor: '#3B82F6',
+    borderRadius: 20,
+    width: 32,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  merchantWelcome: {
+    paddingHorizontal: 24,
+    marginBottom: 24,
+  },
+  merchantWelcomeText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
 const styles = StyleSheet.create({
   container: {
     flex: 1,

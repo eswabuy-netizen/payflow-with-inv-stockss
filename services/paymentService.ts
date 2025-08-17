@@ -2,6 +2,7 @@ import { collection, addDoc, query, where, orderBy, getDocs, doc, updateDoc, get
 import { db } from '@/config/firebase';
 import { Transaction } from '@/types';
 import { MoMoService } from './momoService';
+import { MoMoService } from './momoService';
 
 export class PaymentService {
   static async processPayment(
@@ -83,6 +84,13 @@ export class PaymentService {
   }
 
   static async topUpWallet(userId: string, amount: number): Promise<{ success: boolean; error?: string }> {
+    return this.processPayment(
+      userId,
+      userId,
+      amount,
+      'topup',
+      `Wallet Top-up - SZL ${amount.toFixed(2)}`
+    );
 <<<<<<< HEAD
     return this.processPayment(
       userId,
@@ -96,20 +104,6 @@ export class PaymentService {
     // with proper MoMo or manual deposit flows
     try {
       const result = await this.processPayment(
-        userId,
-        userId,
-        amount,
-        'topup',
-        `Wallet Top-up - SZL ${amount.toFixed(2)}`
-      );
-      return { success: result.success, error: result.error };
-    } catch (error) {
-      return { success: false, error: 'Top-up failed' };
-    }
->>>>>>> af76f43d6c68b62a92b2f41c474638834710f170
-  }
-
-  static async getUserTransactions(userId: string): Promise<Transaction[]> {
     try {
       // Get transactions where user is either payer or receiver
       const payerQuery = query(
@@ -169,34 +163,6 @@ export class PaymentService {
 <<<<<<< HEAD
 =======
   // MoMo payment integration
-  static async processMoMoTopUp(
-    userId: string,
-    phoneNumber: string,
-    amount: number
-  ): Promise<{ success: boolean; transactionId?: string; error?: string }> {
-    return MoMoService.processMoMoPayment({
-      phoneNumber,
-      amount,
-      description: `MoMo Wallet Top-up - SZL ${amount.toFixed(2)}`,
-      userId,
-    });
-  }
-
-  // Manual deposit request
-  static async createManualDepositRequest(
-    userId: string,
-    amount: number,
-    method: 'bank_transfer' | 'momo_send'
-  ): Promise<{ success: boolean; referenceNumber?: string; error?: string }> {
-    return MoMoService.createManualDepositRequest({
-      userId,
-      amount,
-      method,
-      description: `Manual ${method === 'bank_transfer' ? 'Bank Transfer' : 'MoMo Send'} - SZL ${amount.toFixed(2)}`,
-    });
-  }
-
->>>>>>> af76f43d6c68b62a92b2f41c474638834710f170
   static async findUserByEmail(email: string): Promise<{ success: boolean; userId?: string; error?: string }> {
     try {
       const q = query(collection(db, 'users'), where('email', '==', email));
@@ -206,6 +172,21 @@ export class PaymentService {
         return { success: false, error: 'User not found' };
       }
 
+      const userDoc = querySnapshot.docs[0];
+      return { success: true, userId: userDoc.id };
+    } catch (error) {
+      return { success: false, error: 'Failed to find user' };
+    }
+  }
+
+  static async findUserByPhone(phoneNumber: string): Promise<{ success: boolean; userId?: string; error?: string }> {
+    // NOTE: This assumes the User document has a phoneNumber field. If not, add it to the schema and registration.
+    try {
+      const q = query(collection(db, 'users'), where('phoneNumber', '==', phoneNumber));
+      const querySnapshot = await getDocs(q);
+      if (querySnapshot.empty) {
+        return { success: false, error: 'User not found' };
+      }
       const userDoc = querySnapshot.docs[0];
       return { success: true, userId: userDoc.id };
     } catch (error) {

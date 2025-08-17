@@ -10,7 +10,7 @@ interface AuthContextType {
   userProfile: User | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, firstName: string, lastName: string, phoneNumber: string) => Promise<void>;
+  signUp: (email: string, password: string, role: 'client' | 'merchant', firstName: string, lastName: string, businessName?: string) => Promise<void>;
   logout: () => Promise<void>;
   updateWalletBalance: (newBalance: number) => Promise<void>;
 }
@@ -57,9 +57,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signUp = async (
     email: string, 
     password: string, 
+    role: 'client' | 'merchant',
     firstName: string, 
     lastName: string,
-    phoneNumber: string
+    businessName?: string
   ) => {
     try {
       const { user: firebaseUser } = await createUserWithEmailAndPassword(auth, email, password);
@@ -79,6 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Create user profile in Firestore
       const userData: Omit<User, 'id'> = {
         email,
+        role,
         role,
         firstName,
         lastName,

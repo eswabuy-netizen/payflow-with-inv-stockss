@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 <<<<<<< HEAD
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, KeyboardAvoidingView, Platform, useWindowDimensions } from 'react-native';
 =======
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, KeyboardAvoidingView, Platform, useWindowDimensions } from 'react-native';
 >>>>>>> af76f43d6c68b62a92b2f41c474638834710f170
 import { Link, router } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
@@ -10,17 +10,19 @@ import { UserPlus, Eye, EyeOff, Wallet } from 'lucide-react-native';
 
 export default function SignupScreen() {
   const { width, height } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [businessName, setBusinessName] = useState('');
+  const [role, setRole] = useState<'client' | 'merchant'>('client');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState('');
   const { signUp } = useAuth();
 
   const handleSignup = async () => {
-    if (!email || !password || !firstName || !lastName || !phoneNumber) {
+    if (!email || !password || !firstName || !lastName) {
       Alert.alert('Error', 'Please fill in all required fields');
       return;
     }
@@ -31,7 +33,6 @@ export default function SignupScreen() {
     if (!email.includes('@')) {
       Alert.alert('Error', 'Please enter a valid email address');
       return;
-    }
 <<<<<<< HEAD
     if (password.length < 6) {
       Alert.alert('Error', 'Password must be at least 6 characters');
@@ -44,16 +45,18 @@ export default function SignupScreen() {
 
     if (role === 'merchant' && !businessName) {
       Alert.alert('Error', 'Business name is required for merchants');
+    if (role === 'merchant' && !businessName) {
+      Alert.alert('Error', 'Business name is required for merchants');
 >>>>>>> af76f43d6c68b62a92b2f41c474638834710f170
       return;
     }
     setLoading(true);
     try {
 <<<<<<< HEAD
-      await signUp(email, password, firstName, lastName, phoneNumber);
+      await signUp(email, password, role, firstName, lastName, businessName);
       Alert.alert(
         'Account Created!', 
-        "Welcome to PayFlow! You've received SZL 100 to get started.",
+        `Welcome to PayFlow! ${role === 'client' ? 'You\'ve received SZL 100 to get started.' : 'Your merchant account is ready.'}`,
 =======
       await signUp(email, password, role, firstName, lastName, businessName);
       Alert.alert(
@@ -69,6 +72,168 @@ export default function SignupScreen() {
     }
   };
 
+  // Move styles definition here so width/height are in scope and only defined once
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: '#111827',
+    },
+    scrollView: {
+      flex: 1,
+    },
+    content: {
+      padding: Math.max(16, width * 0.05),
+      paddingTop: Math.max(40, height * 0.08),
+    },
+    header: {
+      alignItems: 'center',
+      marginBottom: Math.max(24, height * 0.03),
+    },
+    title: {
+      fontSize: Math.max(24, width * 0.07),
+      fontWeight: 'bold',
+      color: '#FFFFFF',
+      marginTop: 16,
+      marginBottom: 8,
+    },
+    subtitle: {
+      fontSize: Math.max(14, width * 0.04),
+      color: '#9CA3AF',
+      textAlign: 'center',
+    },
+    form: {
+      gap: Math.max(16, height * 0.02),
+    },
+    roleSelector: {
+      gap: 8,
+    },
+    roleButtons: {
+      flexDirection: 'row',
+      gap: 12,
+    },
+    roleButton: {
+      flex: 1,
+      backgroundColor: '#1F2937',
+      borderWidth: 1,
+      borderColor: '#374151',
+      borderRadius: 12,
+      padding: 16,
+      alignItems: 'center',
+    },
+    roleButtonActive: {
+      backgroundColor: '#3B82F6',
+      borderColor: '#3B82F6',
+    },
+    roleButtonText: {
+      color: '#9CA3AF',
+      fontSize: 16,
+      fontWeight: '600',
+      marginBottom: 4,
+    },
+    roleButtonTextActive: {
+      color: '#FFFFFF',
+    },
+    roleDescription: {
+      color: '#6B7280',
+      fontSize: 12,
+      textAlign: 'center',
+    },
+    row: {
+      flexDirection: 'row',
+    },
+    inputContainer: {
+      gap: 8,
+      flex: 1,
+    },
+    label: {
+      fontSize: Math.max(14, width * 0.04),
+      fontWeight: '600',
+      color: '#FFFFFF',
+    },
+    input: {
+      backgroundColor: '#1F2937',
+      borderWidth: 1,
+      borderColor: '#374151',
+      borderRadius: 12,
+      padding: Math.max(12, width * 0.035),
+      fontSize: Math.max(14, width * 0.04),
+      color: '#FFFFFF',
+      width: '100%',
+    },
+    passwordContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: '#1F2937',
+      borderWidth: 1,
+      borderColor: '#374151',
+      borderRadius: 12,
+    },
+    passwordInput: {
+      flex: 1,
+      padding: Math.max(12, width * 0.035),
+      fontSize: Math.max(14, width * 0.04),
+      color: '#FFFFFF',
+    },
+    eyeButton: {
+      padding: Math.max(12, width * 0.035),
+    },
+    benefitsCard: {
+      backgroundColor: '#1F2937',
+      borderRadius: 12,
+      padding: 16,
+      borderWidth: 1,
+      borderColor: '#374151',
+    },
+    benefitsTitle: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: '#FFFFFF',
+      marginBottom: 12,
+    },
+    benefitsList: {
+      gap: 6,
+    },
+    benefitItem: {
+      fontSize: 14,
+      color: '#9CA3AF',
+    },
+    button: {
+      backgroundColor: '#3B82F6',
+      borderRadius: 12,
+      padding: Math.max(14, width * 0.04),
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 8,
+      marginTop: 8,
+    },
+    buttonDisabled: {
+      opacity: 0.5,
+    },
+    buttonText: {
+      color: '#FFFFFF',
+      fontSize: Math.max(16, width * 0.045),
+      fontWeight: '600',
+    },
+    footer: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginTop: Math.max(12, height * 0.015),
+    },
+    footerText: {
+      color: '#9CA3AF',
+      fontSize: Math.max(12, width * 0.035),
+    },
+    link: {
+      marginLeft: 4,
+    },
+    linkText: {
+      color: '#3B82F6',
+      fontSize: Math.max(12, width * 0.035),
+      fontWeight: '600',
+    },
+  });
   // Move styles definition here so width/height are in scope and only defined once
   const styles = StyleSheet.create({
     container: {
@@ -192,6 +357,33 @@ export default function SignupScreen() {
         </View>
 
         <View style={styles.form}>
+          <View style={styles.roleSelector}>
+            <Text style={styles.label}>Account Type</Text>
+            <View style={styles.roleButtons}>
+              <TouchableOpacity
+                style={[styles.roleButton, role === 'client' && styles.roleButtonActive]}
+                onPress={() => setRole('client')}
+              >
+                <Text style={[styles.roleButtonText, role === 'client' && styles.roleButtonTextActive]}>
+                  Client
+                </Text>
+                <Text style={styles.roleDescription}>
+                  Pay for services & products
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.roleButton, role === 'merchant' && styles.roleButtonActive]}
+                onPress={() => setRole('merchant')}
+              >
+                <Text style={[styles.roleButtonText, role === 'merchant' && styles.roleButtonTextActive]}>
+                  Merchant
+                </Text>
+                <Text style={styles.roleDescription}>
+                  Accept payments for business
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
 <<<<<<< HEAD
           <View style={styles.row}>
             <View style={[styles.inputContainer, { flex: 1, marginRight: 8 }]}>
@@ -285,6 +477,20 @@ export default function SignupScreen() {
             </View>
           )}
 
+          {role === 'merchant' && (
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Business Name *</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter business name"
+                placeholderTextColor="#6B7280"
+                value={businessName}
+                onChangeText={setBusinessName}
+                autoCorrect={false}
+              />
+            </View>
+          )}
+
 >>>>>>> af76f43d6c68b62a92b2f41c474638834710f170
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Email *</Text>
@@ -299,6 +505,7 @@ export default function SignupScreen() {
               autoCorrect={false}
             />
           </View>
+
 <<<<<<< HEAD
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Phone Number *</Text>
@@ -340,6 +547,29 @@ export default function SignupScreen() {
               </TouchableOpacity>
             </View>
           </View>
+
+          <View style={styles.benefitsCard}>
+            <Text style={styles.benefitsTitle}>
+              {role === 'client' ? 'Client Benefits' : 'Merchant Benefits'}
+            </Text>
+            <View style={styles.benefitsList}>
+              {role === 'client' ? (
+                <>
+                  <Text style={styles.benefitItem}>• SZL 100 welcome bonus</Text>
+                  <Text style={styles.benefitItem}>• Instant payments</Text>
+                  <Text style={styles.benefitItem}>• Secure transactions</Text>
+                  <Text style={styles.benefitItem}>• Real-time balance updates</Text>
+                </>
+              ) : (
+                <>
+                  <Text style={styles.benefitItem}>• Accept digital payments</Text>
+                  <Text style={styles.benefitItem}>• Real-time transaction tracking</Text>
+                  <Text style={styles.benefitItem}>• Business analytics</Text>
+                  <Text style={styles.benefitItem}>• Integration with StockFlow & InvoiceFlow</Text>
+                </>
+              )}
+            </View>
+          </View>
 <<<<<<< HEAD
 =======
 
@@ -377,6 +607,7 @@ export default function SignupScreen() {
               {loading ? 'Creating Account...' : 'Create Account'}
             </Text>
           </TouchableOpacity>
+
 <<<<<<< HEAD
 =======
 
@@ -391,7 +622,7 @@ export default function SignupScreen() {
       </ScrollView>
     </KeyboardAvoidingView>
   );
-<<<<<<< HEAD
+}
 }
 =======
 }
@@ -450,109 +681,4 @@ const styles = StyleSheet.create({
   roleButtonText: {
     color: '#9CA3AF',
     fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  roleButtonTextActive: {
-    color: '#FFFFFF',
-  },
-  roleDescription: {
-    color: '#6B7280',
-    fontSize: 12,
-    textAlign: 'center',
-  },
-  row: {
-    flexDirection: 'row',
-  },
-  inputContainer: {
-    gap: 8,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
-  },
-  input: {
-    backgroundColor: '#1F2937',
-    borderWidth: 1,
-    borderColor: '#374151',
-    borderRadius: 12,
-    padding: 16,
-    fontSize: 16,
-    color: '#FFFFFF',
-  },
-  passwordContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#1F2937',
-    borderWidth: 1,
-    borderColor: '#374151',
-    borderRadius: 12,
-  },
-  passwordInput: {
-    flex: 1,
-    padding: 16,
-    fontSize: 16,
-    color: '#FFFFFF',
-  },
-  eyeButton: {
-    padding: 16,
-  },
-  benefitsCard: {
-    backgroundColor: '#1F2937',
-    borderRadius: 12,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: '#374151',
-  },
-  benefitsTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
-    marginBottom: 12,
-  },
-  benefitsList: {
-    gap: 6,
-  },
-  benefitItem: {
-    fontSize: 14,
-    color: '#9CA3AF',
-  },
-  button: {
-    backgroundColor: '#3B82F6',
-    borderRadius: 12,
-    padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    marginTop: 8,
-  },
-  buttonDisabled: {
-    opacity: 0.5,
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 16,
-  },
-  footerText: {
-    color: '#9CA3AF',
-    fontSize: 14,
-  },
-  link: {
-    marginLeft: 4,
-  },
-  linkText: {
-    color: '#3B82F6',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-});
 >>>>>>> af76f43d6c68b62a92b2f41c474638834710f170

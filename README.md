@@ -1,23 +1,11 @@
 # PayFlow - Digital Wallet App
 
-<<<<<<< HEAD
-A simple, user-friendly fintech application for personal payments built with React Native Expo and Firebase.
-=======
 A production-ready fintech application for business payments built with React Native Expo and Firebase, specifically designed for the Eswatini market with MTN MoMo integration.
->>>>>>> af76f43d6c68b62a92b2f41c474638834710f170
 
 ## Features
 
 ### Authentication
 - Firebase Email/Password authentication
-<<<<<<< HEAD
-- Secure user registration and login
-- Demo account for testing
-
-### Client Features
-- View wallet balance with real-time updates
-- Top-up wallet with simulated payments
-=======
 - Role-based access (Client vs Merchant)
 - Secure user registration and login
 - Demo accounts for testing
@@ -26,16 +14,12 @@ A production-ready fintech application for business payments built with React Na
 - View wallet balance with real-time updates
 - Top-up wallet with MTN MoMo payments
 - Manual deposit options (bank transfer, MoMo send)
->>>>>>> af76f43d6c68b62a92b2f41c474638834710f170
 - Send money to other users by email
 - Pay invoices using invoice ID
 - Buy products using product codes
 - View complete transaction history
 - Search and filter transactions
 
-<<<<<<< HEAD
-### Payment System
-=======
 ### Merchant Features
 - Business dashboard with revenue analytics
 - Admin panel for manual deposit verification
@@ -49,7 +33,6 @@ A production-ready fintech application for business payments built with React Na
 - MTN MoMo payment integration
 - Manual deposit system with reference generation
 - Admin verification workflow for manual deposits
->>>>>>> af76f43d6c68b62a92b2f41c474638834710f170
 - Secure wallet-to-wallet transfers
 - Real-time balance updates
 - Transaction history with detailed metadata
@@ -59,34 +42,20 @@ A production-ready fintech application for business payments built with React Na
 ## Tech Stack
 
 - **Frontend**: React Native with Expo
-<<<<<<< HEAD
-- **Backend**: Firebase Firestore
-- **Authentication**: Firebase Auth
-=======
 - **Backend**: Firebase Firestore + Cloud Functions
 - **Authentication**: Firebase Auth
 - **Payments**: MTN MoMo API integration
->>>>>>> af76f43d6c68b62a92b2f41c474638834710f170
 - **State Management**: React Context API
 - **Icons**: Lucide React Native
 - **Real-time Updates**: Firebase real-time listeners
 
-<<<<<<< HEAD
-## Demo Account
-
-=======
 ## Demo Accounts
 
 ### Client Account
->>>>>>> af76f43d6c68b62a92b2f41c474638834710f170
 - Email: `client@demo.com`
 - Password: `demo123`
 - Features: SZL 100 starting balance, full payment capabilities
 
-<<<<<<< HEAD
-## Getting Started
-
-=======
 ### Merchant Account
 - Email: `merchant@demo.com`
 - Password: `demo123`
@@ -102,15 +71,11 @@ A production-ready fintech application for business payments built with React Na
 
 ### Installation
 
->>>>>>> af76f43d6c68b62a92b2f41c474638834710f170
 1. Install dependencies:
    ```bash
    npm install
    ```
 
-<<<<<<< HEAD
-2. Start the development server:
-=======
 2. Copy environment variables:
    ```bash
    cp .env.example .env
@@ -118,23 +83,10 @@ A production-ready fintech application for business payments built with React Na
    Fill in your Firebase and MoMo API credentials.
 
 3. Start the development server:
->>>>>>> af76f43d6c68b62a92b2f41c474638834710f170
    ```bash
    npm run dev
    ```
 
-<<<<<<< HEAD
-3. Use the demo account or create a new account to test the app
-
-## Firebase Configuration
-
-The app is pre-configured with Firebase. In production, you would:
-
-1. Create a Firebase project
-2. Enable Authentication and Firestore
-3. Update the Firebase config in `config/firebase.ts`
-4. Set up Firestore security rules (see `utils/securityRules.txt`)
-=======
 4. Use the demo accounts or create new accounts to test the app
 
 ## Firebase Configuration
@@ -176,7 +128,6 @@ The app includes a mock MoMo service for development and testing.
 
 ### Admin Verification
 Merchants can access the admin panel to verify manual deposits using reference numbers.
->>>>>>> af76f43d6c68b62a92b2f41c474638834710f170
 
 ## Security Features
 
@@ -184,11 +135,8 @@ Merchants can access the admin panel to verify manual deposits using reference n
 - Firestore security rules to protect user data
 - Real-time data validation
 - Secure transaction processing with atomic operations
-<<<<<<< HEAD
-=======
 - Manual deposit verification system
 - Production-grade Firestore security rules
->>>>>>> af76f43d6c68b62a92b2f41c474638834710f170
 
 ## Integration Ready
 
@@ -197,11 +145,8 @@ The app includes services for external system integration:
 - **StockFlow Integration**: Product purchase handling
 - **InvoiceFlow Integration**: Invoice payment processing
 - **Real-time Updates**: Automatic balance and transaction updates
-<<<<<<< HEAD
-=======
 - **MTN MoMo API**: Direct mobile money integration
 - **Banking APIs**: Ready for bank integration
->>>>>>> af76f43d6c68b62a92b2f41c474638834710f170
 
 ## Project Structure
 
@@ -212,26 +157,14 @@ The app includes services for external system integration:
 ├── components/            # Reusable components
 ├── contexts/              # React Context providers
 ├── services/              # Business logic and Firebase services
-<<<<<<< HEAD
-├── types/                 # TypeScript type definitions
-├── config/                # Firebase configuration
-└── utils/                 # Utility functions and security rules
-=======
 ├── functions/             # Firebase Cloud Functions
 ├── types/                 # TypeScript type definitions
 ├── config/                # Firebase configuration
 └── utils/                 # Utility functions and setup guides
->>>>>>> af76f43d6c68b62a92b2f41c474638834710f170
 ```
 
 ## Key Features Implemented
 
-<<<<<<< HEAD
-✅ Complete authentication flow
-✅ Real-time wallet balance updates
-✅ Comprehensive transaction system
-✅ Search and filter functionality
-=======
 ✅ Complete authentication flow with role-based access
 ✅ Real-time wallet balance updates
 ✅ Comprehensive transaction system
@@ -240,35 +173,24 @@ The app includes services for external system integration:
 ✅ Admin panel for deposit verification
 ✅ Search and filter functionality
 ✅ Merchant analytics dashboard
->>>>>>> af76f43d6c68b62a92b2f41c474638834710f170
 ✅ Export and reporting capabilities
 ✅ Integration-ready payment triggers
 ✅ Responsive mobile-first design
 ✅ Error handling and validation
-<<<<<<< HEAD
-✅ Demo account for testing
-=======
 ✅ Demo accounts for testing
 ✅ Production-ready Firebase Functions
 ✅ Eswatini-specific payment methods
 ✅ Comprehensive security rules
->>>>>>> af76f43d6c68b62a92b2f41c474638834710f170
 
 ## Future Enhancements
 
 - QR code scanning for payments
-<<<<<<< HEAD
-=======
 - Bank API direct integration
 - Airtel Money integration
->>>>>>> af76f43d6c68b62a92b2f41c474638834710f170
 - Push notifications
 - Advanced reporting and analytics
 - Multi-currency support
 - Biometric authentication
-<<<<<<< HEAD
-- Offline transaction queuing
-=======
 - Offline transaction queuing
 - Advanced fraud detection
 - Multi-language support (English/siSwati)
@@ -292,4 +214,3 @@ The app includes services for external system integration:
 - Implement backup and disaster recovery
 - Plan for maintenance windows
 - Set up 24/7 support system
->>>>>>> af76f43d6c68b62a92b2f41c474638834710f170
