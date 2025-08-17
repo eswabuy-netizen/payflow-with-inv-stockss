@@ -1,0 +1,140 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper: is signed in
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Helper: current user doc (does not require read permission)
+    function currentUser() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    // Helper: active user check
+    function isActiveUser() {
+      return isSignedIn() && currentUser().data.active == true;
+    }
+
+    // Helper: role helpers
+    function userRole() {
+      return currentUser().data.role;
+    }
+    // Note: isAdmin unused; remove to avoid warnings
+    function isManager() { return userRole() == 'manager'; }
+    function isAdminOrManager() { return userRole() in ['admin', 'manager']; }
+
+    // Helper: company helpers
+    function userCompany() { return currentUser().data.companyId; }
+    function sameCompany(companyId) { return isActiveUser() && userCompany() == companyId; }
+
+    // Users
+    match /users/{userId} {
+      allow read: if isSignedIn() && (
+        request.auth.uid == userId ||
+        (isAdminOrManager() && sameCompany(resource.data.companyId))
+      );
+
+      // Allow self-create (used by invited admins and attendants after auth signup)
+      allow create: if isSignedIn() && (
+        request.auth.uid == userId ||
+        (isAdminOrManager() && sameCompany(request.resource.data.companyId))
+      );
+
+      allow update: if isSignedIn() && (
+        request.auth.uid == userId ||
+        (isAdminOrManager() && sameCompany(resource.data.companyId) && sameCompany(request.resource.data.companyId))
+      );
+
+      allow delete: if isSignedIn() && isAdminOrManager() && sameCompany(resource.data.companyId);
+    }
+
+    // Authorized managers (gate for who can create admins). Scoped to company.
+    match /authorized_managers/{docId} {
+      allow read: if isSignedIn() && isAdminOrManager() && sameCompany(resource.data.companyId);
+      allow create: if isSignedIn() && isAdminOrManager() && sameCompany(request.resource.data.companyId);
+      allow update: if isSignedIn() && isAdminOrManager() && sameCompany(resource.data.companyId) && sameCompany(request.resource.data.companyId);
+      allow delete: if isSignedIn() && isAdminOrManager() && sameCompany(resource.data.companyId);
+    }
+
+    // Admin invitations (used pre-auth on signup). Tighten to pending and unexpired only.
+    match /admin_invitations/{invitationId} {
+      // Allow reading only pending invitations (supports unauthenticated signup checks)
+      // Avoid using server time checks that can cause client/server skew rejections during queries
+      allow read: if resource.data.status == 'pending';
+
+      // Create by admin/manager for their company
+      allow create: if isSignedIn() && isAdminOrManager() && sameCompany(request.resource.data.companyId) &&
+        request.resource.data.role == 'admin' &&
+        request.resource.data.status == 'pending' &&
+        request.resource.data.invitedBy == request.auth.uid;
+
+      // Update: manager in same company OR invited user after signup marks completed
+      allow update: if isSignedIn() && (
+        (isManager() && sameCompany(resource.data.companyId)) ||
+        (currentUser().data.email == resource.data.email && request.resource.data.status == 'completed')
+      );
+
+      // Delete: managers in same company
+      allow delete: if isSignedIn() && isManager() && sameCompany(resource.data.companyId);
+    }
+
+    // Companies (optional company profile created during admin signup)
+    match /companies/{companyId} {
+      allow read: if isSignedIn() && sameCompany(resource.data.companyId);
+      allow create: if isSignedIn() && isAdminOrManager() && sameCompany(companyId);
+      allow update: if isSignedIn() && isAdminOrManager() && sameCompany(resource.data.companyId) && sameCompany(request.resource.data.companyId);
+      allow delete: if false; // Never allow deleting companies via client
+    }
+
+    // Products
+    match /products/{productId} {
+      allow read: if isSignedIn() && sameCompany(resource.data.companyId);
+      allow create: if isSignedIn() && isAdminOrManager() && sameCompany(request.resource.data.companyId);
+      // Allow admin/manager updates, and attendants can only decrease quantity for sales
+      allow update: if isSignedIn() && (
+        (isAdminOrManager() && sameCompany(resource.data.companyId) && sameCompany(request.resource.data.companyId)) ||
+        (
+          sameCompany(resource.data.companyId) && sameCompany(request.resource.data.companyId) &&
+          // Only quantity and updatedAt can change
+          request.resource.data.diff(resource.data).changedKeys().hasOnly(['quantity', 'updatedAt']) &&
+          // Quantity must not increase
+          request.resource.data.quantity <= resource.data.quantity
+        )
+      );
+      allow delete: if isSignedIn() && isAdminOrManager() && sameCompany(resource.data.companyId);
+    }
+
+    // Sales
+    match /sales/{saleId} {
+      allow read: if isSignedIn() && sameCompany(resource.data.companyId);
+      // Only the signed-in user can write sales they performed; must be within their company
+      allow create: if isSignedIn() && sameCompany(request.resource.data.companyId) && request.resource.data.attendantId == request.auth.uid;
+      allow update: if isSignedIn() && isAdminOrManager() && sameCompany(resource.data.companyId) && sameCompany(request.resource.data.companyId);
+      allow delete: if isSignedIn() && isAdminOrManager() && sameCompany(resource.data.companyId);
+    }
+
+    // Restocks
+    match /restocks/{restockId} {
+      allow read: if isSignedIn() && sameCompany(resource.data.companyId);
+      // Only admin/manager can create and it must be their own userId
+      allow create: if isSignedIn() && isAdminOrManager() && sameCompany(request.resource.data.companyId) && request.resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn() && isAdminOrManager() && sameCompany(resource.data.companyId) && sameCompany(request.resource.data.companyId);
+      allow delete: if isSignedIn() && isAdminOrManager() && sameCompany(resource.data.companyId);
+    }
+
+    // Expenses
+    match /expenses/{expenseId} {
+      allow read: if isSignedIn() && sameCompany(resource.data.companyId);
+      // Admin/manager can create expenses for their company
+      allow create: if isSignedIn() && isAdminOrManager() && sameCompany(request.resource.data.companyId);
+      allow update: if isSignedIn() && isAdminOrManager() && sameCompany(resource.data.companyId) && sameCompany(request.resource.data.companyId);
+      allow delete: if isSignedIn() && isAdminOrManager() && sameCompany(resource.data.companyId);
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

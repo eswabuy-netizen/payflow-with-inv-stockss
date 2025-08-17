@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: invoicees-backend
+    env: node
+    plan: free
+    buildCommand: npm run install:backend
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_FROM_EMAIL
+        sync: false
